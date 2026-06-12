@@ -4,6 +4,8 @@ A 3D explorer for **chaotic strange attractors** — the eerily structured shape
 
 **▶ Live:** https://andreaisabelmontana.github.io/strange-attractors/
 
+> **Not an original idea.** This recreates the concept of an existing project — I didn't invent it. I rebuilt it from scratch, my own way, out of curiosity about how it actually works (and tried to make it a little better along the way).
+
 ## Systems
 
 Lorenz · Rössler · Aizawa · Thomas · Halvorsen · Dadras
