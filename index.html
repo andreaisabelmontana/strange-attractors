@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strange Attractors</title>
+  <meta name="description" content="A 3D explorer for chaotic strange attractors — Lorenz, Rössler, Aizawa, Thomas and more, integrated with RK4." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌀</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="stage"></canvas>
+
+  <header class="hud">
+    <h1>Strange Attractors</h1>
+    <p class="tag">Deterministic, yet never repeating.</p>
+  </header>
+
+  <aside class="panel" id="panel">
+    <button class="collapse" id="collapse" title="Hide panel">‹</button>
+
+    <section>
+      <label for="attractor">System</label>
+      <select id="attractor"></select>
+    </section>
+
+    <section>
+      <h2>Trajectory</h2>
+      <label>Points <span data-out="trail">9,000</span></label>
+      <input type="range" id="trail" min="1500" max="30000" step="500" value="9000" />
+      <label>Speed <span data-out="speed">6</span></label>
+      <input type="range" id="speed" min="1" max="20" step="1" value="6" />
+    </section>
+
+    <section>
+      <h2>View</h2>
+      <label for="color">Colour</label>
+      <select id="color">
+        <option value="depth">By depth</option>
+        <option value="age">By age</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="rotate" checked /> Auto-rotate</label>
+    </section>
+
+    <p class="hint">Drag the canvas to orbit. Each system is a different solution to three coupled differential equations.</p>
+  </aside>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
