@@ -1,0 +1,11 @@
+{
+  "name": "strange-attractors",
+  "version": "1.0.0",
+  "description": "3D explorer for chaotic strange attractors (Lorenz, Rossler, Aizawa and more), RK4-integrated. Framework-free integration core with tests.",
+  "type": "module",
+  "main": "src/attractors.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

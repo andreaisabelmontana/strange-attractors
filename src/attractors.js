@@ -1,3 +1,11 @@
+// The Lorenz system's three classic parameters and its right-hand side, shared
+// by the catalogue below and exported so tests can reason about it analytically.
+export const LORENZ = { sigma: 10, rho: 28, beta: 8 / 3 };
+
+export function lorenzDeriv([x, y, z], { sigma, rho, beta } = LORENZ) {
+  return [sigma * (y - x), x * (rho - z) - y, x * y - beta * z];
+}
+
 // A catalogue of strange attractors. Each entry gives the system's derivative
 // f(p) = (dx, dy, dz), a sensible starting point, an integration step, and a
 // view scale so the cloud roughly fills the screen.
@@ -9,10 +17,7 @@ export const ATTRACTORS = {
     dt: 0.005,
     scale: 11,
     center: [0, 0, 25],
-    deriv: ([x, y, z]) => {
-      const s = 10, r = 28, b = 8 / 3;
-      return [s * (y - x), x * (r - z) - y, x * y - b * z];
-    },
+    deriv: (p) => lorenzDeriv(p),
   },
   rossler: {
     name: "Rössler",
@@ -80,18 +85,58 @@ export const ATTRACTORS = {
 };
 
 // Classic 4th-order Runge–Kutta — far more stable than Euler for these stiff,
-// fast-curving systems, so the trajectory stays on the attractor.
+// fast-curving systems, so the trajectory stays on the attractor. Works in any
+// dimension: `deriv` and `p` are arrays of the same length.
 export function rk4(deriv, p, dt) {
+  const n = p.length;
   const k1 = deriv(p);
-  const p2 = [p[0] + k1[0] * dt / 2, p[1] + k1[1] * dt / 2, p[2] + k1[2] * dt / 2];
+  const p2 = new Array(n);
+  for (let i = 0; i < n; i++) p2[i] = p[i] + (k1[i] * dt) / 2;
   const k2 = deriv(p2);
-  const p3 = [p[0] + k2[0] * dt / 2, p[1] + k2[1] * dt / 2, p[2] + k2[2] * dt / 2];
+  const p3 = new Array(n);
+  for (let i = 0; i < n; i++) p3[i] = p[i] + (k2[i] * dt) / 2;
   const k3 = deriv(p3);
-  const p4 = [p[0] + k3[0] * dt, p[1] + k3[1] * dt, p[2] + k3[2] * dt];
+  const p4 = new Array(n);
+  for (let i = 0; i < n; i++) p4[i] = p[i] + k3[i] * dt;
   const k4 = deriv(p4);
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    out[i] = p[i] + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+  }
+  return out;
+}
+
+// Generate a trajectory by integrating `deriv` from `p0` for `steps` RK4 steps
+// of size `dt`. With `discard` > 0 the first `discard` steps are integrated but
+// not recorded — this skips the transient so the returned path sits on the
+// attractor. Returns an array of state vectors (the initial recorded point
+// first), length steps + 1.
+export function trajectory(deriv, p0, dt, steps, discard = 0) {
+  let p = p0.slice();
+  for (let i = 0; i < discard; i++) p = rk4(deriv, p, dt);
+  const out = [p.slice()];
+  for (let i = 0; i < steps; i++) {
+    p = rk4(deriv, p, dt);
+    out.push(p.slice());
+  }
+  return out;
+}
+
+// True when every component of a state vector is a finite number (no NaN/Inf).
+export function isFiniteState(p) {
+  for (let i = 0; i < p.length; i++) {
+    if (!Number.isFinite(p[i])) return false;
+  }
+  return true;
+}
+
+// The Lorenz system's two nonzero fixed points
+// C± = (±sqrt(b(r-1)), ±sqrt(b(r-1)), r-1), exposed so both the demo and the
+// tests can reason about the system analytically.
+export function lorenzFixedPoints({ rho, beta } = LORENZ) {
+  const c = Math.sqrt(beta * (rho - 1));
   return [
-    p[0] + (dt / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]),
-    p[1] + (dt / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]),
-    p[2] + (dt / 6) * (k1[2] + 2 * k2[2] + 2 * k3[2] + k4[2]),
+    [c, c, rho - 1],
+    [-c, -c, rho - 1],
   ];
 }
